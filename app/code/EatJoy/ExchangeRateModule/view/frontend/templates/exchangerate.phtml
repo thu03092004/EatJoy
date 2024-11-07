@@ -1,0 +1,212 @@
+<?php
+/** @var $block \EatJoy\ExchangeRateModule\Block\Index */
+$exchangeData = $block->getExchangeRates();
+?>
+
+<?php if ($exchangeData && isset($exchangeData['rates'])): ?>
+    <div class="exchange-rates-container">
+        <h2><?= __('Tỷ Giá Ngoại Tệ') ?></h2>
+        <p class="update-time">
+            <?= __('Cập nhật lần cuối: %1', $block->getFormattedDateTime($exchangeData['datetime'])) ?>
+        </p>
+
+        <!-- Form chuyển đổi tiền tệ -->
+        <form id="currency-converter-form">
+            <label for="source-currency"><?= __('Chuyển từ') ?></label>
+            <select id="source-currency" name="source_currency">
+                <option value="VND">VND - Việt Nam Đồng</option>
+                <?php foreach ($exchangeData['rates'] as $rate): ?>
+                    <option value="<?= $rate['currency_code'] ?>">
+                        <?= $block->escapeHtml($rate['currency_code']) ?> - <?= $block->escapeHtml($rate['currency_name']) ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
+
+            <label for="target-currency"><?= __('Sang') ?></label>
+            <select id="target-currency" name="target_currency">
+                <option value="VND">VND - Việt Nam Đồng</option>
+                <?php foreach ($exchangeData['rates'] as $rate): ?>
+                    <option value="<?= $rate['currency_code'] ?>">
+                        <?= $block->escapeHtml($rate['currency_code']) ?> - <?= $block->escapeHtml($rate['currency_name']) ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
+
+            <label for="rate-type"><?= __('Loại giao dịch') ?></label>
+            <select id="rate-type" name="rate_type">
+                <option value="buy"><?= __('Mua') ?></option>
+                <option value="transfer"><?= __('Chuyển khoản') ?></option>
+                <option value="sell"><?= __('Bán') ?></option>
+            </select>
+
+            <label for="amount"><?= __('Nhập số tiền') ?></label>
+            <input type="number" id="amount" name="amount" placeholder="Số tiền" required min="1">
+
+            <button type="button" onclick="convertCurrency()"><?= __('Chuyển đổi') ?></button>
+        </form>
+
+        <!-- Kết quả chuyển đổi -->
+        <div id="conversion-result" style="margin-top: 15px; font-size: 1.1em; color: #333;"></div>
+
+        <!-- Exchange Rates Table -->
+        <div class="table-wrapper">
+            <table class="data-table">
+                <thead>
+                <tr>
+                    <th><?= __('Tiền Tệ') ?></th>
+                    <th><?= __('Mua (VNĐ)') ?></th>
+                    <th><?= __('Chuyển khoản (VNĐ)') ?></th>
+                    <th><?= __('Bán (VNĐ)') ?></th>
+                </tr>
+                </thead>
+                <tbody>
+                <?php foreach ($exchangeData['rates'] as $rate): ?>
+                    <tr>
+                        <td>
+                            <strong><?= $block->escapeHtml($rate['currency_code']) ?></strong>
+                            <br>
+                            <small><?= $block->escapeHtml($rate['currency_name']) ?></small>
+                        </td>
+                        <td><?= $rate['buy'] !== '-' ? $block->escapeHtml($rate['buy']) : '-' ?></td>
+                        <td><?= $rate['transfer'] !== '-' ? $block->escapeHtml($rate['transfer']) : '-' ?></td>
+                        <td><?= $rate['sell'] !== '-' ? $block->escapeHtml($rate['sell']) : '-' ?></td>
+                    </tr>
+                <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="source">
+            <?= __('Nguồn: %1', $block->escapeHtml($exchangeData['source'])) ?>
+        </div>
+    </div>
+    <style>
+        /* Style for exchange rates container */
+        .exchange-rates-container {
+            font-family: Arial, sans-serif;
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            background-color: #fafafa;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        .data-table thead {
+            background-color: #007bff;
+            color: #ffffff;
+        }
+
+        .data-table th, .data-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+
+        .data-table tbody tr:nth-child(odd) {
+            background-color: #f9f9f9;
+        }
+
+        .data-table tbody tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        .data-table td strong {
+            font-size: 1em;
+            color: #333;
+        }
+        .data-table td small {
+            display: block;
+            font-size: 0.85em;
+            color: #666;
+        }
+
+        .update-time, .source {
+            margin-top: 10px;
+            font-size: 0.9em;
+            color: #555;
+        }
+
+        .exchange-rates-container h2 {
+            font-size: 1.5em;
+            margin-bottom: 10px;
+            color: #007bff;
+            text-align: center;
+        }
+
+        /* Form styling */
+        #currency-converter-form {
+            margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        #currency-converter-form label {
+            font-weight: bold;
+        }
+
+        #currency-converter-form select, #currency-converter-form input {
+            padding: 8px;
+            font-size: 1em;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        #currency-converter-form button {
+            background-color: #007bff;
+            color: #ffffff;
+            padding: 10px;
+            font-size: 1em;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        #currency-converter-form button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+
+    <script>
+        function convertCurrency() {
+            const sourceCurrency = document.getElementById("source-currency").value;
+            const targetCurrency = document.getElementById("target-currency").value;
+            const rateType = document.getElementById("rate-type").value;
+            const amount = parseFloat(document.getElementById("amount").value);
+            const rates = <?= json_encode($exchangeData['rates']); ?>;
+
+            let sourceRate = 1;
+            let targetRate = 1;
+
+            if (sourceCurrency !== 'VND') {
+                const sourceData = rates.find(rate => rate.currency_code === sourceCurrency);
+                sourceRate = parseFloat(sourceData[rateType]);
+            }
+
+            if (targetCurrency !== 'VND') {
+                const targetData = rates.find(rate => rate.currency_code === targetCurrency);
+                targetRate = parseFloat(targetData[rateType]);
+            }
+
+            if (isNaN(sourceRate) || isNaN(targetRate)) {
+                document.getElementById("conversion-result").innerText = "Loại giá không hợp lệ.";
+                return;
+            }
+
+            const result = (amount * sourceRate) / targetRate;
+            document.getElementById("conversion-result").innerText = `Số tiền quy đổi: ${result.toFixed(2)} ${targetCurrency}`;
+        }
+    </script>
+<?php endif; ?>
