@@ -53,9 +53,10 @@ class Index extends Template
 
     public function __construct(
         Template\Context $context,
-        Curl $curl,
-        array $data = []
-    ) {
+        Curl             $curl,
+        array            $data = []
+    )
+    {
         $this->curl = $curl;
         parent::__construct($context, $data);
     }
@@ -63,6 +64,7 @@ class Index extends Template
     public function getWeatherData($city = 'Hanoi', $lang = 'en')
     {
         try {
+            $originalCity = $city;
             $city = urlencode($city);
 
             // Get current weather
@@ -81,7 +83,7 @@ class Index extends Template
 
                 // Format data to match your template
                 $weatherData = [
-                    'city_name' => $this->getCityLabel($city, $lang),
+                    'city_name' => $this->getCityLabel($originalCity, $lang),
                     'current' => [
                         'temp' => $currentData['main']['temp'],
                         'feels_like' => $currentData['main']['feels_like'],
