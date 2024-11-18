@@ -17,7 +17,8 @@ $exchangeData = $block->getExchangeRates();
                 <option value="VND">VND - Việt Nam Đồng</option>
                 <?php foreach ($exchangeData['rates'] as $rate): ?>
                     <option value="<?= $rate['currency_code'] ?>">
-                        <?= $block->escapeHtml($rate['currency_code']) ?> - <?= $block->escapeHtml($rate['currency_name']) ?>
+                        <?= $block->escapeHtml($rate['currency_code']) ?>
+                        - <?= $block->escapeHtml($rate['currency_name']) ?>
                     </option>
                 <?php endforeach; ?>
             </select>
@@ -27,7 +28,8 @@ $exchangeData = $block->getExchangeRates();
                 <option value="VND">VND - Việt Nam Đồng</option>
                 <?php foreach ($exchangeData['rates'] as $rate): ?>
                     <option value="<?= $rate['currency_code'] ?>">
-                        <?= $block->escapeHtml($rate['currency_code']) ?> - <?= $block->escapeHtml($rate['currency_name']) ?>
+                        <?= $block->escapeHtml($rate['currency_code']) ?>
+                        - <?= $block->escapeHtml($rate['currency_name']) ?>
                     </option>
                 <?php endforeach; ?>
             </select>
@@ -40,7 +42,7 @@ $exchangeData = $block->getExchangeRates();
             </select>
 
             <label for="amount"><?= __('Nhập số tiền') ?></label>
-            <input type="number" id="amount" name="amount" placeholder="Số tiền" required min="1">
+            <input id="amount" name="amount" placeholder="Số tiền" required min="1">
 
             <button type="button" onclick="convertCurrency()"><?= __('Chuyển đổi') ?></button>
         </form>
@@ -126,6 +128,7 @@ $exchangeData = $block->getExchangeRates();
             font-size: 1em;
             color: #333;
         }
+
         .data-table td small {
             display: block;
             font-size: 0.85em;
@@ -180,33 +183,123 @@ $exchangeData = $block->getExchangeRates();
     </style>
 
     <script>
+        // Hàm định dạng số
+        function formatNumber(number) {
+            // Làm tròn đến 2 chữ số thập phân
+            number = Math.round(number * 100) / 100;
+
+            // Chuyển số thành chuỗi và tách phần nguyên, phần thập phân
+            let parts = number.toString().split('.');
+            let integerPart = parts[0];
+            let decimalPart = parts.length > 1 ? '.' + parts[1] : '';
+
+            // Thêm dấu phẩy ngăn cách hàng nghìn
+            integerPart = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+
+            return integerPart + decimalPart;
+        }
+
         function convertCurrency() {
             const sourceCurrency = document.getElementById("source-currency").value;
             const targetCurrency = document.getElementById("target-currency").value;
             const rateType = document.getElementById("rate-type").value;
-            const amount = parseFloat(document.getElementById("amount").value);
-            const rates = <?= json_encode($exchangeData['rates']); ?>;
+            const amountInput = document.getElementById("amount").value.trim();
 
-            let sourceRate = 1;
-            let targetRate = 1;
-
-            if (sourceCurrency !== 'VND') {
-                const sourceData = rates.find(rate => rate.currency_code === sourceCurrency);
-                sourceRate = parseFloat(sourceData[rateType]);
-            }
-
-            if (targetCurrency !== 'VND') {
-                const targetData = rates.find(rate => rate.currency_code === targetCurrency);
-                targetRate = parseFloat(targetData[rateType]);
-            }
-
-            if (isNaN(sourceRate) || isNaN(targetRate)) {
-                document.getElementById("conversion-result").innerText = "Loại giá không hợp lệ.";
+            // Kiểm tra nếu input trống
+            if (amountInput === "") {
+                document.getElementById("conversion-result").innerText = "Vui lòng nhập thông tin";
                 return;
             }
 
-            const result = (amount * sourceRate) / targetRate;
-            document.getElementById("conversion-result").innerText = `Số tiền quy đổi: ${result.toFixed(2)} ${targetCurrency}`;
+            // Kiểm tra nếu input KHÔNG phải là số hợp lệ
+            if (isNaN(amountInput) || amountInput === "." || amountInput === "-") {
+                document.getElementById("conversion-result").innerText = "Vui lòng nhập số hợp lệ";
+                return;
+            }
+
+            const amount = parseFloat(amountInput);
+
+            // Kiểm tra nếu parse ra NaN
+            if (isNaN(amount)) {
+                document.getElementById("conversion-result").innerText = "Vui lòng nhập số hợp lệ";
+                return;
+            }
+
+            const rates = <?= json_encode($exchangeData['rates']); ?>;
+            let sourceRate = 1;
+            let targetRate = 1;
+
+            // Tính tỷ giá nguồn
+            if (sourceCurrency !== 'VND') {
+                const sourceData = rates.find(rate => rate.currency_code === sourceCurrency);
+                if (!sourceData) {
+                    document.getElementById("conversion-result").innerText = "Không tìm thấy tỷ giá nguồn";
+                    return;
+                }
+                sourceRate = parseFloat(sourceData[rateType].replace(/,/g, ''));
+                if (isNaN(sourceRate)) {
+                    document.getElementById("conversion-result").innerText = "Tỷ giá nguồn không hợp lệ";
+                    return;
+                }
+            }
+
+            // Tính tỷ giá đích
+            if (targetCurrency !== 'VND') {
+                const targetData = rates.find(rate => rate.currency_code === targetCurrency);
+                if (!targetData) {
+                    document.getElementById("conversion-result").innerText = "Không tìm thấy tỷ giá đích";
+                    return;
+                }
+                targetRate = parseFloat(targetData[rateType].replace(/,/g, ''));
+                if (isNaN(targetRate)) {
+                    document.getElementById("conversion-result").innerText = "Tỷ giá đích không hợp lệ";
+                    return;
+                }
+            }
+
+            // Tính kết quả quy đổi
+            let result;
+            if (sourceCurrency === 'VND' && targetCurrency !== 'VND') {
+                // Chuyển từ VND sang ngoại tệ
+                result = amount / targetRate;
+            } else if (sourceCurrency !== 'VND' && targetCurrency === 'VND') {
+                // Chuyển từ ngoại tệ sang VND
+                result = amount * sourceRate;
+            } else if (sourceCurrency !== 'VND' && targetCurrency !== 'VND') {
+                // Chuyển giữa hai ngoại tệ
+                const amountInVND = amount * sourceRate;
+                result = amountInVND / targetRate;
+            } else {
+                // Cùng loại tiền
+                result = amount;
+            }
+
+            // Hiển thị kết quả đã được định dạng
+            document.getElementById("conversion-result").innerText =
+                `Số tiền quy đổi: ${formatNumber(result)} ${targetCurrency}`;
         }
+
+
+        // // Thêm event listener cho các elements
+        // document.addEventListener('DOMContentLoaded', function () {
+        //     // Gắn sự kiện cho nút convert (nếu có)
+        //     const convertButton = document.getElementById('convert-button');
+        //     if (convertButton) {
+        //         convertButton.addEventListener('click', convertCurrency);
+        //     }
+        //
+        //     // Gắn sự kiện cho input amount để convert realtime (tùy chọn)
+        //     const amountInput = document.getElementById('amount');
+        //     if (amountInput) {
+        //         amountInput.addEventListener('input', convertCurrency);
+        //     }
+        //
+        //     // Gắn sự kiện cho các select boxes (tùy chọn)
+        //     const currencySelects = document.querySelectorAll('select');
+        //     currencySelects.forEach(select => {
+        //         select.addEventListener('change', convertCurrency);
+        //     });
+        // });
+
     </script>
 <?php endif; ?>
