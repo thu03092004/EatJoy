@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:App/etc/routes.xsd">
+    <!--Use router 'admin' for admin route -->
+    <router id="admin">
+        <!--Define a custom route with id and frontName -->
+        <route id="eatjoy_businessmodule" frontName="eatjoy_businessmodule">
+            <!--The module which this route match to-->
+            <module name="EatJoy_BusinessModule"/>
+        </route>
+    </router>
+</config>

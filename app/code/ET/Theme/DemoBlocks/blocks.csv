@@ -34,7 +34,7 @@ Footer Get in Touch,et_footer_contact_info,"<div class=""title"">
         </div>
         <div class=""text"">
             <strong>Address</strong>
-            <p>123 Street, City, London</p>
+            <p>144 Xuân Thủy, Dịch Vọng Hậu, Cầu Giấy, Hà Nội</p>
         </div>
     </div>
     <div class=""add-item"">
@@ -159,7 +159,7 @@ Home slider,et_home_slider,"<div class=""slider-wrapper"">
                             on Fashion<br>
                             Brands
                         </h2>
-                        <a href=""#"" class=""action primary"">Shop Now</a> 
+                        <a href=""#"" class=""action primary"">Shop Now</a>
                     </div>
                 </div>
             </div>
@@ -375,7 +375,7 @@ Home Blogs,et_home_blogs,"<div class=""blogs-wrapper"">
                                 </div>
                                 <div class=""post-text"">
                                     <p>
-                                        Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore. 
+                                        Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore.
                                     </p>
                                 </div>
                                 <a class=""action primary"" href=""#"">
@@ -465,7 +465,7 @@ Home Brand Slider,et_brand_slider,"<div class=""brands-wrapper"">
 Footer Logo and Socials Content,et_footer_logo_socials,"<div class=""logo-socials align-center"">
 <img src=""{{media url='etrend/footer/logo.png'}}"" title=""Etrend"" alt=""Etrend"" />
 <p>
-    Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, 
+    Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam,
     eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.
 </p>
 {{widget type=""Magento\Cms\Block\Widget\Block"" template=""widget/static_block/default.phtml"" block_id=""social_icons""}}

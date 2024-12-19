@@ -1,0 +1,157 @@
+<?php
+/** @var \EatJoy\BusinessModule\Block\Index $block */
+$items = $block->getRssData();
+$paginatedData = $block->getPaginatedItems($items);
+$paginatedItems = $paginatedData['items'];
+$currentPage = $paginatedData['currentPage'];
+$totalPages = $paginatedData['totalPages'];
+$seenTitles = []; 
+?>
+
+<div class="rss-feed">
+    <h2>Bản tin kinh doanh - VnExpress</h2>
+    <h3>Nguồn: VnExpress</h3>
+    <div class="rss-items-container">
+        <?php foreach ($paginatedItems as $item): ?>
+            <?php 
+                if (in_array($item['title'], $seenTitles)) {
+                    continue;
+                }
+                $seenTitles[] = $item['title']; 
+            ?>
+            <div class="rss-item">
+                <a href="<?php echo $item['link']; ?>" target="_blank" class="rss-item-link">
+                    <img src="<?php echo $item['image']; ?>" alt="Image" class="rss-item-image">
+                </a>
+                <div class="rss-item-content">
+                    <h3><a href="<?php echo $item['link']; ?>" target="_blank"><?php echo $item['title']; ?></a></h3>
+                    <p><?php echo strip_tags($item['description']); ?></p>
+                    <p><strong>Thời gian xuất bản:</strong> <?php echo $item['pubDate']; ?></p>
+                </div>
+            </div>
+        <?php endforeach; ?>
+    </div>
+
+    <div class="pagination">
+        <?php if ($currentPage > 1): ?>
+            <a href="?page=<?php echo $currentPage - 1; ?>" class="prev">Trang trước</a>
+        <?php endif; ?>
+
+        <?php for ($page = 1; $page <= $totalPages; $page++): ?>
+            <a href="?page=<?php echo $page; ?>" class="page <?php echo $page == $currentPage ? 'active' : ''; ?>"><?php echo $page; ?></a>
+        <?php endfor; ?>
+
+        <?php if ($currentPage < $totalPages): ?>
+            <a href="?page=<?php echo $currentPage + 1; ?>" class="next">Trang sau</a>
+        <?php endif; ?>
+    </div>
+</div>
+
+<style>
+    .rss-feed {
+        width: 100%;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #f9f9f9;
+    }
+
+    .rss-items-container {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .rss-item {
+        display: flex;
+        align-items: flex-start;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        overflow: hidden;
+        background-color: #fff;
+        padding: 10px;
+        transition: transform 0.3s ease;
+    }
+
+    .rss-item:hover {
+        transform: scale(1.05);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .rss-item-link {
+        display: block;
+        margin-right: 15px;
+    }
+
+    .rss-item-image {
+        width: 170px;
+        height: 170px;
+        object-fit: cover;
+        border-radius: 5px;
+    }
+
+    .rss-item-content {
+        flex-grow: 1;
+        padding-left: 15px;
+    }
+
+    .rss-item-content h3 {
+        font-size: 18px;
+        margin: 10px 0;
+    }
+
+    .rss-item-content h3 a {
+        text-decoration: none;
+        color: #333;
+    }
+
+    .rss-item-content h3 a:hover {
+        color: #007bff;
+    }
+
+    .rss-item-content p {
+        font-size: 14px;
+        color: #555;
+    }
+
+    .rss-item-content strong {
+        font-weight: bold;
+    }
+
+    .pagination {
+        text-align: center;
+        margin-top: 20px;
+    }
+
+    .pagination a {
+    display: inline-block;
+    padding: 8px 16px;
+    margin: 0 5px;
+    text-decoration: none;
+    color: #333; 
+    border-radius: 5px;
+    background-color: #e0e0e0;
+    font-weight: normal; 
+    transition: background-color 0.3s ease, color 0.3s ease; 
+}
+
+.pagination a:hover {
+    background-color: #cccccc; 
+    color: #fff; 
+}
+
+.pagination .active {
+    background-color: #999999; 
+    color: #fff; 
+    pointer-events: none; 
+}
+
+.pagination .prev, .pagination .next {
+    background-color: #007bff; 
+    color: white; 
+}
+
+.pagination .prev:hover, .pagination .next:hover {
+    background-color: #0056b3; 
+}
+
+</style>

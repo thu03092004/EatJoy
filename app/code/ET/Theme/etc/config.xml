@@ -72,7 +72,8 @@
             <contact_info>
                 <store_title><![CDATA[Etrend Store]]></store_title>
                 <store_phone><![CDATA[(123) 4567-890]]></store_phone>
-                <store_address><![CDATA[123 Street, City, London, 789AB]]></store_address>
+<!--                <store_address><![CDATA[123 Street, City, London, 789AB]]></store_address>-->
+                <store_address><![CDATA[144 Xuân Thủy, Dịch Vọng Hậu, Cầu Giấy, Hà Nội]]></store_address>
                 <store_email><![CDATA[mail@example.com]]></store_email>
                 <addtional_info></addtional_info>
             </contact_info>
